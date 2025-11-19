@@ -1,47 +1,54 @@
-FROM elixir:1.18.4-alpine
+# Workaround for alpine packages not having PostgreSQL 18 client yet.
+FROM postgres:18.1-alpine AS pg
 
-ADD https://api.github.com/repos/philomena-dev/FFmpeg/git/refs/heads/release/6.1 /tmp/ffmpeg_version.json
-RUN (echo "https://github.com/philomena-dev/prebuilt-ffmpeg/raw/master"; cat /etc/apk/repositories) > /tmp/repositories \
-    && cp /tmp/repositories /etc/apk/repositories \
-    && apk update --allow-untrusted \
-    && apk add --allow-untrusted \
-      bash \
-      inotify-tools \
-      build-base \
-      git \
-      ffmpeg \
-      ffmpeg-dev \
-      npm \
-      nodejs \
-      file-dev \
-      libjpeg-turbo-dev \
-      libpng-dev \
-      gifsicle \
-      optipng \
-      libjpeg-turbo-utils \
-      librsvg \
-      rsvg-convert \
-      imagemagick \
-      postgresql17-client \
-      wget \
-      rust \
-      cargo \
-    && mix local.hex --force \
-    && mix local.rebar --force
+FROM elixir:1.19.3-alpine
 
-ADD https://api.github.com/repos/philomena-dev/cli_intensities/git/refs/heads/master /tmp/cli_intensities_version.json
-RUN git clone --depth 1 https://github.com/philomena-dev/cli_intensities /tmp/cli_intensities \
-    && cd /tmp/cli_intensities \
-    && make -j$(nproc) install
+# TODO: remove this once alpine has the postgresql18-client package
+# Alternatively: consider if we want to keep using this workaround long-term
+COPY --from=pg /usr/local/bin/pg_dump /usr/local/bin/pg_dump
 
-ADD https://api.github.com/repos/philomena-dev/mediatools/git/refs/heads/master /tmp/mediatools_version.json
-RUN git clone --depth 1 https://github.com/philomena-dev/mediatools /tmp/mediatools \
-    && ln -s /usr/lib/librsvg-2.so.2 /usr/lib/librsvg-2.so \
-    && cd /tmp/mediatools \
-    && make -j$(nproc) install
+ARG CONTAINER_WORKSPACE=/srv/philomena
 
-# docker-compose configures a bind-mount of the repo root dir to /srv/philomena
-ENV PATH=$PATH:/root/.cargo/bin:/srv/philomena/docker/app
+ENV PATH=$CONTAINER_WORKSPACE/node_modules/.bin:$PATH
+ENV PATH=$CONTAINER_WORKSPACE/scripts/path:$PATH
+ENV PATH=$CONTAINER_WORKSPACE/docker/app:$PATH
+ENV PATH=/root/.cargo/bin:$PATH
 
-EXPOSE 5173
-CMD run-development
+WORKDIR $CONTAINER_WORKSPACE
+
+RUN apk add \
+    bash \
+    inotify-tools \
+    build-base \
+    git \
+    npm \
+    nodejs \
+    postgresql17-client \
+    curl \
+    wget \
+    docker-cli-compose \
+    docker-cli-buildx \
+    # Required by Caddyfile LSP for autoformatting
+    caddy \
+    # Required by Github Pull Requests VSCode extension to fetch via git SSH URLs
+    openssh
+
+# The default `cargo` and `rust` packages in Alpine repo don't include important
+# rust dev components like `rust-src` (std lib sources), `rustfmt`, `clippy`, etc.
+# In any case, it's much better to use rustup for rust toolchain management.
+# Also, this lives in a separate RUN statement to cache this step separately, as
+# it's quite slow to install.
+RUN --mount=source=./scripts/lib.sh,target=./scripts/lib.sh \
+    --mount=source=./scripts/install/rust.sh,target=./scripts/install/rust.sh \
+    --mount=source=./rust-toolchain.toml,target=./rust-toolchain.toml \
+    ./scripts/install/rust.sh
+
+RUN --mount=source=./scripts,target=./scripts \
+    ./scripts/install/shellcheck.sh \
+    && ./scripts/install/typos.sh
+
+# `/shell-history` dir is persisted across container rebuilds/restarts
+ENV HISTFILE=/shell-history/history
+
+ENTRYPOINT ["run"]
+CMD ["run-development"]
