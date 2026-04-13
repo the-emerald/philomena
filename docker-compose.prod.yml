@@ -56,7 +56,9 @@ services:
   # first boot, seeds default data, then runs any pending migrations. Exits 0
   # on success. app and worker will not start until this completes.
   setup:
-    image: ghcr.io/philomena-dev/philomena:1.2.3-rc1
+    build:
+      context: .
+      dockerfile: docker/production/Dockerfile
     command: /usr/local/bin/setup-production
     env_file: .env
     environment:
@@ -74,7 +76,9 @@ services:
     restart: 'no'
 
   app:
-    image: ghcr.io/philomena-dev/philomena:master
+    build:
+      context: .
+      dockerfile: docker/production/Dockerfile
     command: /usr/local/bin/run-production
     env_file: .env
     depends_on:
@@ -93,7 +97,9 @@ services:
     restart: unless-stopped
 
   worker:
-    image: ghcr.io/philomena-dev/philomena:master
+    build:
+      context: .
+      dockerfile: docker/production/Dockerfile
     command: /usr/local/bin/run-production
     env_file: .env
     environment:
@@ -107,7 +113,9 @@ services:
 
   # Runs run-cron every hour and run-cron-daily once every 24 hours.
   cron:
-    image: ghcr.io/philomena-dev/philomena:master
+    build:
+      context: .
+      dockerfile: docker/production/Dockerfile
     command: >-
       sh -c 'hours=0; while true; do
         /usr/local/bin/run-cron;
@@ -126,7 +134,9 @@ services:
   # everything else to the app. No ports exposed to the host — your external
   # Caddy reaches this container via caddy_net.
   web:
-    image: ghcr.io/philomena-dev/philomena-web:master
+    build:
+      context: .
+      dockerfile: docker/production/web/Dockerfile
     env_file: .env
     environment:
       APP_ADDRESS: app:4000
