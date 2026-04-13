@@ -30,6 +30,7 @@ defmodule PhilomenaWeb.ImageController do
   plug :load_image when action in [:show]
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
+  plug PhilomenaWeb.EnsureAnonymousUploadsEnabledPlug when action in [:new, :create]
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
   plug PhilomenaWeb.CaptchaPlug when action in [:new, :show, :create]
   plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
