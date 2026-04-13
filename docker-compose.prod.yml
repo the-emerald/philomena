@@ -3,10 +3,6 @@ volumes:
   opensearch_data: {}
   s3_data: {}
 
-networks:
-  caddy_net:
-    external: true
-
 services:
   postgres:
     image: postgres:17.7-alpine
@@ -137,9 +133,8 @@ services:
       DOWNTIME: 'false'
     volumes:
       - ./docker/production/web/Caddyfile:/etc/caddy/Caddyfile
-    networks:
-      - default
-      - caddy_net
+    ports:
+      - '80:80'
     depends_on:
       app:
         condition: service_healthy

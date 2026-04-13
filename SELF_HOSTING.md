@@ -6,15 +6,15 @@ This guide covers running Philomena in production using the prebuilt Docker imag
 
 - Docker with the Compose plugin (`docker compose version` should work)
 - A domain name with DNS you control
-- An external Caddy container on a Docker network named `caddy_net` (or adjust the network name to match yours)
+- A reverse proxy in front of this server that handles TLS (e.g. Caddy, Nginx, Traefik)
 - An SMTP relay for outgoing email
 
 ## Architecture Overview
 
 ```
-Internet → your external Caddy (TLS) → philomena-web:80 (internal Caddy)
-                                              ├── /img/*, /avatars/*, etc. → files (s3proxy)
-                                              └── everything else → app:4000 (Elixir)
+Internet → your reverse proxy (TLS) → host:80 → philomena-web (internal Caddy)
+                                                        ├── /img/*, /avatars/*, etc. → files (s3proxy)
+                                                        └── everything else → app:4000 (Elixir)
 ```
 
 | Container    | Image                                        | Purpose                                    |
@@ -102,32 +102,23 @@ HCAPTCHA_SITE_KEY=your_site_key
 
 Everything else (S3, file roots, OpenSearch, Redis) is pre-configured for the local containers and does not need to change unless you are using external services.
 
-## Step 3 — External Caddy network
+## Step 3 — Reverse proxy config
 
-Ensure the `caddy_net` Docker network exists. If your external Caddy was set up with it already, this is a no-op:
+Point your reverse proxy at port 80 on this machine for both the app domain and the CDN subdomain. The internal Caddy distinguishes them by `Host` header and routes traffic accordingly.
 
-```sh
-docker network create caddy_net
-```
-
-## Step 4 — External Caddy config
-
-Add two reverse proxy entries to your external Caddy so it forwards traffic to the internal `philomena-web` container. The exact syntax depends on your Caddy setup, but the logic is:
+Example for Caddy:
 
 ```
 example.com {
-    reverse_proxy philomena-web:80
+    reverse_proxy localhost:80
 }
 
 cdn.example.com {
-    reverse_proxy philomena-web:80
+    reverse_proxy localhost:80
 }
 ```
 
-> Both hostnames proxy to the same container. The internal Caddy distinguishes
-> them by `Host` header and serves app traffic vs. media files accordingly.
-
-## Step 5 — Start the stack
+## Step 4 — Start the stack
 
 ```sh
 docker compose -f docker-compose.prod.yml up -d
@@ -158,7 +149,7 @@ docker compose -f docker-compose.prod.yml ps
 
 The `setup` service should show `Exited (0)`. All others should show `running`.
 
-## Step 6 — Verify
+## Step 5 — Verify
 
 Visit `https://example.com` in a browser. You should see the Philomena landing page.
 
