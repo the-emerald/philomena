@@ -5,6 +5,7 @@ defmodule PhilomenaWeb.RegistrationController do
   alias Philomena.Users
   alias Philomena.Users.User
 
+  plug PhilomenaWeb.EnsureRegistrationEnabledPlug when action in [:new, :create]
   plug PhilomenaWeb.CaptchaPlug when action in [:new, :create]
   plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
   plug PhilomenaWeb.CompromisedPasswordCheckPlug when action in [:create]
