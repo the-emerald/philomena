@@ -12,6 +12,7 @@ defmodule PhilomenaWeb.Image.CommentController do
        [time: 15, error: "You may only create a comment once every 15 seconds."]
        when action in [:create]
 
+  plug PhilomenaWeb.EnsureCommentsEnabledPlug when action in [:create, :edit, :update]
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create, :edit, :update]
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
 

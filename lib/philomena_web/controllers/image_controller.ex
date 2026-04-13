@@ -39,6 +39,7 @@ defmodule PhilomenaWeb.ImageController do
        [params_name: "image", params_key: "image"] when action in [:create]
 
   plug PhilomenaWeb.AdvertPlug when action in [:show]
+  plug :assign_comments_enabled when action in [:show]
 
   def index(conn, _params) do
     {images, _tags} = ImageLoader.default_query(conn)
@@ -235,6 +236,10 @@ defmodule PhilomenaWeb.ImageController do
         |> assign(:tag_change_tag_count, tag_changes_tags)
         |> assign(:source_change_count, source_changes)
     end
+  end
+
+  defp assign_comments_enabled(conn, _opts) do
+    assign(conn, :comments_enabled, Application.get_env(:philomena, :comments_enabled, true))
   end
 
   # TODO: this is duplicated in Image.SourceController
