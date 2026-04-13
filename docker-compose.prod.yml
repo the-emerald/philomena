@@ -60,7 +60,7 @@ services:
   # first boot, seeds default data, then runs any pending migrations. Exits 0
   # on success. app and worker will not start until this completes.
   setup:
-    image: ghcr.io/philomena-dev/philomena:master
+    image: ghcr.io/philomena-dev/philomena:1.2.3-rc1
     command: /usr/local/bin/setup-production
     env_file: .env
     environment:
