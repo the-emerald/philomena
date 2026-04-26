@@ -49,9 +49,11 @@ services:
       dockerfile: docker/production/fiberglass/Dockerfile
     restart: unless-stopped
 
-  # Local S3-compatible file storage backed by the host filesystem.
-  # Stores all uploaded images, avatars, and other media in the s3_data volume.
-  # No bucket pre-creation needed — s3proxy treats any path as a valid bucket.
+  # Local S3-compatible file storage backed by the host filesystem. Stores all
+  # uploaded images, avatars, and other media in the s3_data volume. With the
+  # filesystem backend each "bucket" is a top-level directory under /data, so
+  # the bucket directory must exist before PutObject calls succeed — created
+  # by the files-init service below.
   files:
     image: andrewgaul/s3proxy:sha-9f66ef5
     environment:
@@ -59,7 +61,20 @@ services:
       S3PROXY_IGNORE_UNKNOWN_HEADERS: 'true'
     volumes:
       - s3_data:/data
+    depends_on:
+      files-init:
+        condition: service_completed_successfully
     restart: unless-stopped
+
+  # One-shot init that creates the bucket directory in the s3_data volume so
+  # s3proxy doesn't return NoSuchBucket on the first PutObject.
+  files-init:
+    image: busybox
+    command: sh -c 'mkdir -p /data/${S3_BUCKET}'
+    env_file: .env
+    volumes:
+      - s3_data:/data
+    restart: 'no'
 
   # Init container: waits for postgres + opensearch, initialises the schema on
   # first boot, seeds default data, then runs any pending migrations. Exits 0
