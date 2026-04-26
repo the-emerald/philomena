@@ -10,6 +10,8 @@ defmodule PhilomenaWeb.Image.TagController do
   alias Philomena.Repo
   alias Plug.Conn
 
+  plug PhilomenaWeb.EnsureAnonymousTagEditingEnabledPlug when action in [:update]
+
   plug PhilomenaWeb.LimitPlug,
        [time: 5, error: "You may only update metadata once every 5 seconds."]
        when action in [:update]
@@ -71,7 +73,9 @@ defmodule PhilomenaWeb.Image.TagController do
           tag_change_count: tag_change_count,
           tag_change_tag_count: tag_change_tag_count,
           image: image,
-          changeset: changeset
+          changeset: changeset,
+          anonymous_tag_editing_enabled:
+            Application.get_env(:philomena, :anonymous_tag_editing_enabled, true)
         )
 
       {:error, :image, changeset, _} ->
@@ -86,7 +90,9 @@ defmodule PhilomenaWeb.Image.TagController do
           tag_change_count: 0,
           tag_change_tag_count: 0,
           image: image,
-          changeset: changeset
+          changeset: changeset,
+          anonymous_tag_editing_enabled:
+            Application.get_env(:philomena, :anonymous_tag_editing_enabled, true)
         )
 
       {:error, :check_limits, _error, _} ->
