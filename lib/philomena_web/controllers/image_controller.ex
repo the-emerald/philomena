@@ -41,6 +41,7 @@ defmodule PhilomenaWeb.ImageController do
   plug PhilomenaWeb.AdvertPlug when action in [:show]
   plug :assign_comments_enabled when action in [:show]
   plug :assign_anonymous_tag_editing_enabled when action in [:show]
+  plug :assign_anonymous_source_editing_enabled when action in [:show]
 
   def index(conn, _params) do
     {images, _tags} = ImageLoader.default_query(conn)
@@ -241,6 +242,14 @@ defmodule PhilomenaWeb.ImageController do
 
   defp assign_comments_enabled(conn, _opts) do
     assign(conn, :comments_enabled, Application.get_env(:philomena, :comments_enabled, true))
+  end
+
+  defp assign_anonymous_source_editing_enabled(conn, _opts) do
+    assign(
+      conn,
+      :anonymous_source_editing_enabled,
+      Application.get_env(:philomena, :anonymous_source_editing_enabled, true)
+    )
   end
 
   defp assign_anonymous_tag_editing_enabled(conn, _opts) do

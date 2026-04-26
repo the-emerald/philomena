@@ -9,6 +9,8 @@ defmodule PhilomenaWeb.Image.SourceController do
   alias Philomena.Repo
   import Ecto.Query
 
+  plug PhilomenaWeb.EnsureAnonymousSourceEditingEnabledPlug when action in [:update]
+
   plug PhilomenaWeb.LimitPlug,
        [time: 5, error: "You may only update metadata once every 5 seconds."]
        when action in [:update]
@@ -63,7 +65,9 @@ defmodule PhilomenaWeb.Image.SourceController do
           layout: false,
           source_change_count: source_change_count,
           image: image,
-          changeset: changeset
+          changeset: changeset,
+          anonymous_source_editing_enabled:
+            Application.get_env(:philomena, :anonymous_source_editing_enabled, true)
         )
 
       {:error, :image, changeset, _} ->
@@ -73,7 +77,9 @@ defmodule PhilomenaWeb.Image.SourceController do
           layout: false,
           source_change_count: 0,
           image: image,
-          changeset: changeset
+          changeset: changeset,
+          anonymous_source_editing_enabled:
+            Application.get_env(:philomena, :anonymous_source_editing_enabled, true)
         )
     end
   end

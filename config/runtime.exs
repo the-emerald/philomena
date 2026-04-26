@@ -39,7 +39,10 @@ config :philomena,
   registration_enabled: System.get_env("REGISTRATION_ENABLED", "true") == "true",
   anonymous_uploads_enabled: System.get_env("ANONYMOUS_UPLOADS_ENABLED", "true") == "true",
   comments_enabled: System.get_env("COMMENTS_ENABLED", "true") == "true",
-  anonymous_tag_editing_enabled: System.get_env("ANONYMOUS_TAG_EDITING_ENABLED", "true") == "true"
+  anonymous_tag_editing_enabled:
+    System.get_env("ANONYMOUS_TAG_EDITING_ENABLED", "true") == "true",
+  anonymous_source_editing_enabled:
+    System.get_env("ANONYMOUS_SOURCE_EDITING_ENABLED", "true") == "true"
 
 app_dir = System.get_env("APP_DIR", File.cwd!())
 
