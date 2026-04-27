@@ -42,7 +42,8 @@ config :philomena,
   anonymous_tag_editing_enabled:
     System.get_env("ANONYMOUS_TAG_EDITING_ENABLED", "true") == "true",
   anonymous_source_editing_enabled:
-    System.get_env("ANONYMOUS_SOURCE_EDITING_ENABLED", "true") == "true"
+    System.get_env("ANONYMOUS_SOURCE_EDITING_ENABLED", "true") == "true",
+  anonymous_reports_enabled: System.get_env("ANONYMOUS_REPORTS_ENABLED", "true") == "true"
 
 app_dir = System.get_env("APP_DIR", File.cwd!())
 

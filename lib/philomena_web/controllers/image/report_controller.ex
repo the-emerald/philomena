@@ -9,6 +9,7 @@ defmodule PhilomenaWeb.Image.ReportController do
 
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.UserAttributionPlug
+  plug PhilomenaWeb.EnsureAnonymousReportsEnabledPlug when action in [:new, :create]
   plug PhilomenaWeb.CaptchaPlug
   plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
   plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show

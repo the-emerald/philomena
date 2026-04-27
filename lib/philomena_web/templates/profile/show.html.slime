@@ -25,7 +25,8 @@
       ul.profile-top__options__column
         li = link("Send message", to: ~p"/conversations/new?#{[recipient: @user.name]}")
         li = link("Our conversations", to: ~p"/conversations?#{[with: @user.id]}")
-        li = link("Report this user", to: ~p"/profiles/#{@user}/reports/new")
+        = if @anonymous_reports_enabled || @conn.assigns.current_user do
+          li = link("Report this user", to: ~p"/profiles/#{@user}/reports/new")
 
       ul.profile-top__options__column
         = case @conn.assigns.current_user do

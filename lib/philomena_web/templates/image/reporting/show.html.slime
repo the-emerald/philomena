@@ -1,7 +1,8 @@
-a href=~p"/images/#{@image}/reports/new"
-  button.button.button--link
-    i.fa.fa-exclamation-triangle>
-    ' General reporting
+= if @conn.assigns[:anonymous_reports_enabled] != false || @conn.assigns.current_user do
+  a href=~p"/images/#{@image}/reports/new"
+    button.button.button--link
+      i.fa.fa-exclamation-triangle>
+      ' General reporting
 
 .report-duplicate
   - checked = Enum.any?(@dupe_reports, & &1.state == "open")

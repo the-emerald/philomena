@@ -36,6 +36,7 @@ defmodule PhilomenaWeb.ProfileController do
 
   plug :set_admin_metadata
   plug :set_mod_notes
+  plug :assign_anonymous_reports_enabled when action in [:show]
 
   def show(conn, _params) do
     current_filter = conn.assigns.current_filter
@@ -284,5 +285,13 @@ defmodule PhilomenaWeb.ProfileController do
     else
       conn
     end
+  end
+
+  defp assign_anonymous_reports_enabled(conn, _opts) do
+    assign(
+      conn,
+      :anonymous_reports_enabled,
+      Application.get_env(:philomena, :anonymous_reports_enabled, true)
+    )
   end
 end

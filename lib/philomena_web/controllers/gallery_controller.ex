@@ -12,6 +12,7 @@ defmodule PhilomenaWeb.GalleryController do
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create, :edit, :update, :delete]
   plug PhilomenaWeb.MapParameterPlug, [param: "gallery"] when action in [:index]
+  plug :assign_anonymous_reports_enabled when action in [:show]
 
   plug :load_and_authorize_resource,
     model: Gallery,
@@ -225,4 +226,12 @@ defmodule PhilomenaWeb.GalleryController do
 
   defp position_order(%{order_position_asc: true}), do: "asc"
   defp position_order(_gallery), do: "desc"
+
+  defp assign_anonymous_reports_enabled(conn, _opts) do
+    assign(
+      conn,
+      :anonymous_reports_enabled,
+      Application.get_env(:philomena, :anonymous_reports_enabled, true)
+    )
+  end
 end

@@ -2,9 +2,10 @@ div
   ' Posted
   => pretty_time(@comment.created_at)
 
-  a.communication__interaction href=~p"/images/#{@comment.image}/comments/#{@comment}/reports/new"
-    i.fa.fa-flag>
-    ' Report
+  = if @conn.assigns[:anonymous_reports_enabled] != false || @conn.assigns.current_user do
+    a.communication__interaction href=~p"/images/#{@comment.image}/comments/#{@comment}/reports/new"
+      i.fa.fa-flag>
+      ' Report
 
   = if not is_nil(@comment.edited_at) and can?(@conn, :show, @comment) do
     br

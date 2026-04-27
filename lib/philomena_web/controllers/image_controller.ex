@@ -42,6 +42,7 @@ defmodule PhilomenaWeb.ImageController do
   plug :assign_comments_enabled when action in [:show]
   plug :assign_anonymous_tag_editing_enabled when action in [:show]
   plug :assign_anonymous_source_editing_enabled when action in [:show]
+  plug :assign_anonymous_reports_enabled when action in [:show]
 
   def index(conn, _params) do
     {images, _tags} = ImageLoader.default_query(conn)
@@ -257,6 +258,14 @@ defmodule PhilomenaWeb.ImageController do
       conn,
       :anonymous_tag_editing_enabled,
       Application.get_env(:philomena, :anonymous_tag_editing_enabled, true)
+    )
+  end
+
+  defp assign_anonymous_reports_enabled(conn, _opts) do
+    assign(
+      conn,
+      :anonymous_reports_enabled,
+      Application.get_env(:philomena, :anonymous_reports_enabled, true)
     )
   end
 
