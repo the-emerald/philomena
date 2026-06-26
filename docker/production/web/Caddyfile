@@ -10,7 +10,7 @@
 
 	servers {
 		client_ip_headers CF-Connecting-IP X-Forwarded-For
-		trusted_proxies static private_ranges
+		trusted_proxies static private_ranges 100.64.0.0/10
 	}
 }
 
