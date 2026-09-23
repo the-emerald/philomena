@@ -16,10 +16,10 @@ defmodule PhilomenaWeb.Api.Json.OembedView do
     %{
       type: "photo",
       version: "1.0",
-      title: "##{image.id} - #{tag_list(image)} - Derpibooru",
+      title: "##{image.id} - #{tag_list(image)} - Emmybooru",
       author_name: artist_tags(image.tags),
       author_url: image_first_source(image),
-      provider_name: "Derpibooru",
+      provider_name: "Emmybooru",
       provider_url: PhilomenaWeb.Endpoint.url(),
       # 2 hours
       cache_age: 7200,
