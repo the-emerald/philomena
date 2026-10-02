@@ -54,7 +54,7 @@ function step {
 
   colorized_cmd=$(colorize_command "${cmd[@]}")
 
-  echo >&$global_stdout -e "\033[32;1m$task❱\033[0m $colorized_cmd" >&2
+  echo >&$global_stdout -e "\033[32;1m${task}❱\033[0m $colorized_cmd" >&2
 
   "$@"
 }
@@ -81,7 +81,7 @@ function colorize_command {
   echo -e "\033[1;32m${program}\033[0m ${args[*]}"
 }
 
-# `curl` wrapper with better defaults for non-interactive scripts
+# `curl` wrapper with reliable defaults for non-interactive installers.
 function fetch {
   step curl \
     --fail \

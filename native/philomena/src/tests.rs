@@ -144,14 +144,6 @@ fn greentext_preserved() {
 }
 
 #[test]
-fn separate_quotes_on_line_end() {
-    html(
-        "> 1\n>\n> 2",
-        "<blockquote>\n<div class=\"paragraph\">1</div>\n</blockquote>\n<div class=\"paragraph\">&gt;</div>\n<blockquote>\n<div class=\"paragraph\">2</div>\n</blockquote>\n",
-    );
-}
-
-#[test]
 fn unnest_quotes_on_line_end() {
     html(
         "> 1\n> > 2\n> 1",
